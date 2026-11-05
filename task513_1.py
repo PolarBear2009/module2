@@ -19,11 +19,9 @@ class Warrior():
 
 
 # Combat
-viking1 = Warrior('Knut')
-# print(viking1.health)
-
+viking1 = Warrior('Sven')
 viking2 = Warrior('Eric')
-# print(viking2.health)
+
 
 winner = []
 while not winner:
@@ -44,6 +42,3 @@ while not winner:
 
 print(winner, 'wins')
 
-# for i in range(5):
-    # viking1.wounded()
-    # print(viking1.health)
