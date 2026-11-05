@@ -42,7 +42,6 @@ class Gladiator():
 # Morituri
 gladiator1 = Gladiator('Spartacus')
 gladiator2 = Gladiator('Ajax')
-
 print(gladiator1.name, 'vs', gladiator2.name, '\n')
 
 # Начинаем...

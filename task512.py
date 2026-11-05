@@ -52,4 +52,4 @@ print('Срединная точка:', 'x =', c.x, 'м, y =', c.y, 'м')
 
 print('Её полярные координаты:')
 rho, phi = c.polar()
-print('Rho = ', rho, 'метров.', 'Phi = ', phi/math.pi*180, 'градусов')
+print('Rho =', rho, 'метров.', 'Phi =', phi/math.pi*180, 'градусов')
