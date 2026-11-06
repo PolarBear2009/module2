@@ -6,38 +6,52 @@ from random import randint
 
 class Warrior():
 
-    # создаем методы класса 
     def __init__(self, name):
         self.name = name
         self.health = 100
+        self.alive = True
 
-    def wounded(self):
-        self.health -= 20
+    def attack(self, other, strength):
+        other.is_wounded(strength)
+
+    def is_wounded(self, damage):
+        self.health -= damage
         if self.health <= 0:
             self.health = 0
-            print(self.name, ' is slain')
+            
+    def check_alive(self):
+        if self.health == 0:
+            self.alive = False
+        return self.alive
 
 
 # Combat
 viking1 = Warrior('Sven')
 viking2 = Warrior('Eric')
-
+strength = 20;
 
 winner = []
 while not winner:
+# for i in range(10):
     result = randint(1, 100) - 50
-    # print(result)
+
     if result <= 0:
         print(viking2.name, 'hits')
-        viking1.wounded()
-        print(viking1.name, ':', viking1.health, 'health remain')
-        if viking1.health <= 0:
+        viking2.attack(viking1, strength)
+        if viking1.check_alive():
+            print(viking1.name, ':', viking1.health, 'health remain')
+            # print(viking1.name, viking1.check_alive())
+        else:
+            print(viking1.name, 'is slain')
             winner = viking2.name
     else:
         print(viking1.name, 'hits')
-        viking2.wounded()
-        print(viking2.name, ':', viking2.health, 'health remain')
-        if viking2.health <= 0:
+        viking1.attack(viking2, strength)
+        if viking2.check_alive():
+            print(viking2.name, ':', viking2.health, 'health remain')
+            # print(viking2.name, viking2.check_alive())
+        else:
+            print(viking2.name, 'is slain')
             winner = viking1.name
 
 print(winner, 'wins')
