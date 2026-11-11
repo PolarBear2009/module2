@@ -12,80 +12,93 @@ class Gladiator():
         self.name = name
         self.health = 100
         self.endurance = 50
-        self.armour = 100
-        self.position = 'defend'
+        self.armour = 20
+        self.position = []
 
-    def attack(self, enemy):
-        self.position = 'attack'
-        # если воин устал, маскисмальная сила удара уменьшается на величину weakness
-        self.endurance -= 10    #   
-        if self.endurance <= 0:
-            weakness = 10           
+    def hit(self, arena, target):
+        weakness = 10 * (self.endurance <= 0)
+        hit_value = randint(10, 30-weakness)
+        if arena.protected[target]:
+            hit_value -= 10
+            damage_value = randint(0, 10) 
         else:
-            weakness = 0
+            damage_value = 0
 
-        if enemy.position == 'defend' and enemy.armour >= 1:
-            enemy.armour -= randint(0, 10)                      
-            enemy.health -= (randint(0, 20 - weakness) )
-        elif enemy.position == 'defend' and enemy.armour <= 1:
-            enemy.health -= (randint(10, 30 - weakness) )            
-        elif enemy.position == 'attack':
-            enemy.health -= (randint(10, 30 - weakness) )
-        else:
-            print('Что-то пошло не так ...')
+        return hit_value, damage_value
 
-    def defend(self):
-        self.position = 'defend'
-        # по идее, тут воин должен отдыхать, но в описании этого нет
+    def armour_damaged(self, damage_value):
+        self.armour -= damage_value
+        if self.armour <= 0:
+            self.armour = 0
 
+    def is_wounded(self, hit_value):
+        self.health -= hit_value
+        if self.health <= 0:
+            self.health = 0
+
+class Arena():
+    protected = []
+    def __init__(self):
+        for i in [0, 1]:
+            self.protected.append(True)
+
+    def combat_mode(self, gladiator):
+        for i in [0, 1]:
+            gladiator[i].position = randint(0, 1)   # 1 - атака, 0 - оборона
+
+    def fatigue(self, gladiator):
+        for i in [0, 1]:           
+            if gladiator[i].position:
+                gladiator[i].endurance -= 10
+
+    def protection(self, gladiator): 
+        for i in [0, 1]:
+            if gladiator[i].armour >= 1: 
+                self.protected[i] = not gladiator[i].position
+            else:
+                self.protected[i] = False    
+
+    def check_winner(self, gladiator):           # тут проверка на арене
+        enemy = [1, 0]
+        for i in [0, 1]:
+            if gladiator[i].health <= 10:
+                winner = gladiator[enemy[i]].name
+            else:
+                winner = []
+        return winner
 
 # Morituri
-gladiator1 = Gladiator('Spartacus')
-gladiator2 = Gladiator('Ajax')
-print(gladiator1.name, 'vs', gladiator2.name, '\n')
+gladiator = []
+gladiator.append(Gladiator('Spartacus'))
+gladiator.append(Gladiator('Ajax'))
+print(gladiator[0].name, 'vs', gladiator[1].name, '\n')
 
 # Начинаем...
 print('Ave, Ceasar!\n')
 
+arena = Arena()
+enemy = [1, 0]  
 winner = []
 
 while not winner:
-    # решение об атаке за каждого гладиатора(1 - атака, 0 - оборона)
-    attack1 = randint(0,1)
-    attack2 = randint(0,1)
 
-    if attack1 and attack2:
-        gladiator1.attack(gladiator2)
-        gladiator2.attack(gladiator1)
-    elif attack1 and (not attack2):
-        gladiator2.defend()
-        gladiator1.attack(gladiator2)
-    elif (not attack1) and attack2:
-        gladiator1.defend()
-        gladiator2.attack(gladiator1)
-    elif (not attack1) and (not attack2):
-        gladiator1.defend()
-        gladiator2.defend()
+    arena.combat_mode(gladiator)            # определяем метод для каждого воина 
+    arena.fatigue(gladiator)                # добавляем усталость 
+    arena.protection(gladiator)             # проверяем наличие защиты
+         
+    for i in [0, 1]:
+        print(gladiator[i].name, gladiator[i].health, gladiator[i].armour)
 
+        if gladiator[i].position:
+            print(gladiator[i].name, 'attacks')
+            hit_value, damage_size = gladiator[i].hit(arena, enemy[i])
+            gladiator[enemy[i]].armour_damaged(damage_size)
+            gladiator[enemy[i]].is_wounded(hit_value)
+            print(hit_value, damage_size)
+        else:
+            print(gladiator[i].name, 'defends')
 
-    print(gladiator1.name, end = ' ')
-    print(gladiator1.position, 's', sep='')
-    print('health:', gladiator1.health, end = '   ')
-    print('armour:', gladiator1.armour, end = '   ')
-    print('endurance:', gladiator1.endurance, end = '   ')
     print()
-    print(gladiator2.name, end = ' ')
-    print(gladiator2.position, 's', sep='')
-    print('health:', gladiator2.health, end = '   ')
-    print('armour:', gladiator2.armour, end = '   ')
-    print('endurance:', gladiator2.endurance, end = '   ')
-    print('\n')
-
-    if gladiator1.health <= 10:
-        winner = gladiator2.name
-    elif gladiator2.health <= 10:
-        winner = gladiator1.name
+    winner = arena.check_winner(gladiator)
 
 print(winner, 'wins')
-
-spare = input('Pollice verso?')
